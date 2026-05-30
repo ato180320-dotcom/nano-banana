@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍌 나노바나나 프롬프트 생성기</title>
+<link rel="manifest" href="/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f0e0a;
+  --surface: #1a1907;
+  --surface2: #222010;
+  --border: rgba(255,214,0,0.12);
+  --border2: rgba(255,214,0,0.25);
+  --text: #f5f0d0;
+  --text2: #a89f70;
+  --text3: #6b6340;
+  --yellow: #FFD600;
+  --yellow2: #FFF176;
+  --yellow-dim: rgba(255,214,0,0.15);
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 배경 패턴 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255,214,0,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255,214,0,0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 헤더 */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(15,14,10,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--yellow);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.logo-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--yellow);
+  letter-spacing: -0.3px;
+}
+
+.logo-sub {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 1px;
+}
+
+.header-badge {
+  font-size: 12px;
+  background: var(--yellow-dim);
+  color: var(--yellow);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  font-weight: 500;
+}
+
+/* 메인 */
+main {
+  flex: 1;
+  max-width: 780px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 2rem 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* 섹션 제목 */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--yellow);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+
+/* 카드 */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+
+.card:focus-within {
+  border-color: var(--border2);
+}
+
+/* 텍스트 영역 */
+textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  padding: 12px 14px;
+  resize: vertical;
+  min-height: 90px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+textarea::placeholder { color: var(--text3); }
+textarea:focus { border-color: var(--border2); }
+
+/* 스타일 칩 */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 13px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text2);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.chip:hover { border-color: var(--border2); color: var(--text); }
+.chip.active {
+  background: var(--yellow-dim);
+  border-color: var(--yellow);
+  color: var(--yellow);
+  font-weight: 500;
+}
+
+/* 옵션 그리드 */
+.option-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.option-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--text3);
+  margin-bottom: 6px;
+}
+
+select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px;
+  padding: 9px 12px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a89f70' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color 0.2s;
+}
+
+select:focus { border-color: var(--border2); }
+
+/* 생성 버튼 */
+.gen-btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--yellow);
+  color: #0f0e0a;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  margin-bottom: 12px;
+  letter-spacing: -0.3px;
+}
+
+.gen-btn:hover { background: var(--yellow2); transform: translateY(-1px); }
+.gen-btn:active { transform: translateY(0); }
+.gen-btn:disabled {
+  background: var(--surface2);
+  color: var(--text3);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 결과 */
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--yellow);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 12px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.result-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--yellow);
+}
+
+.result-meta {
+  font-size: 11px;
+  color: var(--text3);
+  background: var(--surface2);
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+.result-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-all;
+  background: var(--surface2);
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+  min-height: 80px;
+}
+
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--yellow);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.copy-btn:hover { background: var(--yellow-dim); }
+.copy-btn.copied { background: var(--yellow-dim); color: var(--yellow2); }
+
+/* 로딩 */
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text2);
+  font-size: 14px;
+  padding: 1rem 0;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--yellow);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 오류 */
+.error-msg {
+  font-size: 13px;
+  color: #ff6b6b;
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: rgba(255,107,107,0.1);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,107,107,0.2);
+}
+
+/* 토스트 */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--yellow);
+  color: #0f0e0a;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: transform 0.3s ease;
+  z-index: 999;
+  white-space: nowrap;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* 반응형 */
+@media (max-width: 600px) {
+  .option-grid { grid-template-columns: 1fr; }
+  main { padding: 1.5rem 1rem; }
+  header { padding: 0 1rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🍌</div>
+    <div>
+      <div class="logo-text">Nano Banana Pro</div>
+      <div class="logo-sub">프롬프트 생성기</div>
+    </div>
+  </div>
+  <div class="header-badge">nano_banana_2 최적화</div>
+</header>
+
+<main>
+
+  <!-- 아이디어 입력 -->
+  <div class="card">
+    <div class="section-label">💡 아이디어 입력</div>
+    <textarea id="idea" placeholder="예: 도쿄 야경을 배경으로 한 사이버펑크 고양이, 빨간 우주복 착용&#10;예: 한국 전통 시장의 활기찬 모습, 따뜻한 황혼빛"></textarea>
+    <div id="errorMsg" class="error-msg" style="display:none;"></div>
+  </div>
+
+  <!-- 스타일 선택 -->
+  <div class="card">
+    <div class="section-label">🎨 스타일 선택 (복수 선택 가능)</div>
+    <div class="chips" id="styleChips">
+      <button class="chip" data-id="photorealistic">📷 포토리얼</button>
+      <button class="chip" data-id="cinematic">🎬 시네마틱</button>
+      <button class="chip" data-id="illustration">🖌️ 일러스트</button>
+      <button class="chip" data-id="diagram">📊 다이어그램</button>
+      <button class="chip" data-id="text_rendering">✍️ 텍스트 렌더링</button>
+      <button class="chip" data-id="4k">🔍 4K 초고화질</button>
+      <button class="chip" data-id="anime">🌸 애니메이션</button>
+      <button class="chip" data-id="abstract">🌀 추상적</button>
+      <button class="chip" data-id="vintage">📻 빈티지</button>
+      <button class="chip" data-id="minimalist">⬜ 미니멀</button>
+    </div>
+  </div>
+
+  <!-- 옵션 -->
+  <div class="card">
+    <div class="section-label">⚙️ 설정</div>
+    <div class="option-grid">
+      <div class="option-group">
+        <label>비율</label>
+        <select id="ratio">
+          <option value="1:1">1:1 (정사각형)</option>
+          <option value="16:9">16:9 (가로)</option>
+          <option value="9:16" selected>9:16 (세로/모바일)</option>
+          <option value="4:3">4:3</option>
+          <option value="3:4">3:4</option>
+          <option value="21:9">21:9 (와이드)</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label>해상도</label>
+        <select id="resolution">
+          <option value="standard">Standard</option>
+          <option value="HD">HD</option>
+          <option value="4K" selected>4K</option>
+          <option value="8K">8K</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 생성 버튼 -->
+  <button class="gen-btn" id="genBtn" onclick="generate()">
+    🍌 프롬프트 생성하기
+  </button>
+
+  <!-- 결과 -->
+  <div id="resultArea"></div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STYLES = {
+  photorealistic: '사실적인 사진 스타일',
+  cinematic: '영화적 구도와 조명',
+  illustration: '디지털 일러스트레이션',
+  diagram: '다이어그램/인포그래픽',
+  text_rendering: '텍스트 렌더링 특화',
+  '4k': '4K 초고화질 디테일',
+  anime: '애니메이션/만화 스타일',
+  abstract: '추상적 아트워크',
+  vintage: '빈티지/레트로 느낌',
+  minimalist: '미니멀리스트 구성'
+};
+
+let selectedStyles = [];
+
+// 칩 토글
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const id = chip.dataset.id;
+    if (selectedStyles.includes(id)) {
+      selectedStyles = selectedStyles.filter(s => s !== id);
+      chip.classList.remove('active');
+    } else {
+      selectedStyles.push(id);
+      chip.classList.add('active');
+    }
+  });
+});
+
+async function generate() {
+  const idea = document.getElementById('idea').value.trim();
+  const ratio = document.getElementById('ratio').value;
+  const resolution = document.getElementById('resolution').value;
+  const errorMsg = document.getElementById('errorMsg');
+  const resultArea = document.getElementById('resultArea');
+  const genBtn = document.getElementById('genBtn');
+
+  errorMsg.style.display = 'none';
+
+  if (!idea) {
+    errorMsg.textContent = '아이디어를 입력해주세요!';
+    errorMsg.style.display = 'block';
+    return;
+  }
+
+  const styleDesc = selectedStyles.length > 0
+    ? selectedStyles.map(s => STYLES[s]).join(', ')
+    : '기본 스타일';
+
+  genBtn.disabled = true;
+  genBtn.innerHTML = '<div class="spinner"></div> 생성 중...';
+
+  resultArea.innerHTML = `
+    <div class="card">
+      <div class="loading">
+        <div class="spinner"></div>
+        <span>nano_banana_2에 최적화된 프롬프트 생성 중...</span>
+      </div>
+    </div>
+  `;
+
+  const systemPrompt = `You are an expert prompt engineer specialized in Nano Banana 2 (nano_banana_2) image generation model by Google/Higgsfield.
+
+Nano Banana 2 strengths:
+- Ultra-realistic 4K/8K photorealistic rendering
+- Exceptional text rendering and typography
+- Detailed diagrams and infographics
+- Cinematic lighting and composition
+- Rich detail and texture rendering
+
+Your task: Generate an optimized English prompt for nano_banana_2 based on the user's Korean idea.
+
+Rules:
+1. Write ONLY in English
+2. Be specific and descriptive (50-120 words ideal)
+3. Include: subject, environment, lighting, mood, technical specs
+4. Leverage nano_banana_2's strengths based on selected styles
+5. Use comma-separated descriptors
+6. End with quality tags
+7. Return ONLY the prompt, no explanations`;
+
+  const userPrompt = `아이디어: ${idea}
+스타일: ${styleDesc}
+비율: ${ratio}
+해상도: ${resolution}
+
+위 내용을 nano_banana_2에 최적화된 영어 프롬프트로 변환해주세요.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+
+    const data = await response.json();
+    const prompt = data.content?.[0]?.text?.trim();
+
+    if (prompt) {
+      resultArea.innerHTML = `
+        <div class="result-card">
+          <div class="result-header">
+            <div class="result-title">✨ 생성된 프롬프트</div>
+            <div class="result-meta">${ratio} · ${resolution}</div>
+          </div>
+          <div class="result-text" id="promptText">${prompt}</div>
+          <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">
+            📋 복사하기
+          </button>
+        </div>
+      `;
+    } else {
+      throw new Error('응답 오류');
+    }
+  } catch (e) {
+    resultArea.innerHTML = '';
+    errorMsg.textContent = '생성 중 오류가 발생했습니다. 다시 시도해주세요.';
+    errorMsg.style.display = 'block';
+  }
+
+  genBtn.disabled = false;
+  genBtn.innerHTML = '🍌 프롬프트 생성하기';
+}
+
+function copyPrompt() {
+  const text = document.getElementById('promptText')?.textContent;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✅ 복사됨!';
+    btn.classList.add('copied');
+    showToast('클립보드에 복사됐어요! 힉스필드에 붙여넣기 하세요 🍌');
+    setTimeout(() => {
+      btn.innerHTML = '📋 복사하기';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// Enter 단축키
+document.getElementById('idea').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.ctrlKey) generate();
+});
+</script>
+</body>
+</html>
